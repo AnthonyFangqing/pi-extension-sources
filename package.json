@@ -1,0 +1,14 @@
+{
+  "name": "pi-extension-sources",
+  "version": "1.0.0",
+  "description": "Adds extension source locations to the pi system prompt",
+  "keywords": ["pi-package"],
+  "license": "MIT",
+  "pi": {
+    "extensions": ["./extensions/extension-sources-index.ts"]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/pi-packages.git"
+  }
+}
