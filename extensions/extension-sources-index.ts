@@ -23,12 +23,15 @@ export default function extensionSourcesPrompt(pi: ExtensionAPI) {
 		const enabled = extensions.filter((e) => e.enabled);
 		if (enabled.length === 0) return;
 
-		// Group by source
-		const groups = new Map<string, string[]>();
+		// Collect unique package locations
+		const packages = new Map<string, string>();
 
 		for (const ext of enabled) {
 			const { metadata } = ext;
+			const baseDir = metadata.baseDir ?? ext.path;
+
 			let key: string;
+			let location: string;
 
 			if (metadata.origin === "package") {
 				const type = metadata.source.startsWith("npm:") ? "npm" :
@@ -36,18 +39,20 @@ export default function extensionSourcesPrompt(pi: ExtensionAPI) {
 				const source = metadata.source.replace(/^(npm:|git:)/, "");
 				const scope = metadata.scope === "project" ? "Project" : "Global";
 				key = `${scope} package (${type}:${source})`;
+				location = shortenPath(baseDir);
 			} else {
-				const location = metadata.scope === "project" ? ".pi/extensions/" : "~/.pi/agent/extensions/";
-				key = `${metadata.scope === "project" ? "Project" : "Global"} extensions (${location})`;
+				const scope = metadata.scope === "project" ? "Project" : "Global";
+				const locationDir = metadata.scope === "project" ? ".pi/extensions/" : "~/.pi/agent/extensions/";
+				key = `${scope} extensions (${locationDir})`;
+				location = shortenPath(baseDir);
 			}
 
-			const name = extName(ext.path);
-			groups.set(key, [...(groups.get(key) ?? []), name]);
+			packages.set(key, location);
 		}
 
 		const lines = [`Here are the loaded extensions for the pi coding agent harness:`];
-		for (const [key, names] of groups) {
-			lines.push(`**${key}**: ${names.join(", ")}`);
+		for (const [key, location] of packages) {
+			lines.push(`**${key}**: ${location}`);
 		}
 
 		return { systemPrompt: `${event.systemPrompt}\n\n${lines.join("\n")}` };
