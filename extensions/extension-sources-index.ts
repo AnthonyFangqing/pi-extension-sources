@@ -41,14 +41,13 @@ export default function extensionSourcesPrompt(pi: ExtensionAPI) {
 				key = `${metadata.scope === "project" ? "Project" : "Global"} extensions (${location})`;
 			}
 
-			const line = `  - ${extName(ext.path)}: ${shortenPath(ext.path)}`;
-			groups.set(key, [...(groups.get(key) ?? []), line]);
+			const name = extName(ext.path);
+			groups.set(key, [...(groups.get(key) ?? []), name]);
 		}
 
 		const lines = [`Here are the loaded extensions for the pi coding agent harness:`];
-		for (const [key, items] of groups) {
-			lines.push(`**${key}**:`);
-			lines.push(...items);
+		for (const [key, names] of groups) {
+			lines.push(`**${key}**: ${names.join(", ")}`);
 		}
 
 		return { systemPrompt: `${event.systemPrompt}\n\n${lines.join("\n")}` };
